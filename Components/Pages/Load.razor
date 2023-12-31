@@ -1,0 +1,29 @@
+@page "/load"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+<PageTitle>Load</PageTitle>
+
+<h1>Load</h1>
+
+<p>Enter the URL of an XBRL document to be loaded.</p>
+
+<RadzenFormField Text="URL" Variant=Variant.Outlined>
+    <RadzenTextBox @bind-Value="@urlOfXbrlDocument" />
+    <RadzenButton Click=@OnLoadFromUrl IsBusy=@loadingInProgress BusyText="Loading..." Text="Load" ButtonStyle="ButtonStyle.Primary" />
+</RadzenFormField>
+
+@code {
+    [CascadingParameter]
+    public XbrlDocument? XbrlDoc { get; set; }
+    string urlOfXbrlDocument = string.Empty;
+    bool loadingInProgress = false;
+
+    async Task OnLoadFromUrl()
+    {
+        XbrlDoc = new XbrlDocument();
+        loadingInProgress = true;
+        await XbrlDoc.LoadAsync(urlOfXbrlDocument);
+        loadingInProgress = false;
+    }
+}
