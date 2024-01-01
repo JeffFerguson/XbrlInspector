@@ -16,12 +16,13 @@
 @code {
     [CascadingParameter]
     public XbrlDocument? XbrlDoc { get; set; }
+
     string urlOfXbrlDocument = string.Empty;
     bool loadingInProgress = false;
 
     async Task OnLoadFromUrl()
     {
-        XbrlDoc = new XbrlDocument();
+        //XbrlDoc = new XbrlDocument();
         loadingInProgress = true;
         await XbrlDoc.LoadAsync(urlOfXbrlDocument);
         loadingInProgress = false;

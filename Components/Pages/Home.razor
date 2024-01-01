@@ -1,7 +1,118 @@
 ﻿@page "/"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+@if(IsDocumentLoaded() == true)
+{
+    <h1>Dashboard</h1>
+    <h2>@XbrlDoc?.Filename</h2>
+}
+else
+{
+    <RadzenAlert AllowClose="false" AlertStyle="AlertStyle.Danger" Variant="Variant.Filled" Shade="Shade.Darker">
+        No XBRL document instance loaded. Load a document before inspecting the document dashboard.
+    </RadzenAlert>
+}
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Wrap="FlexWrap.Wrap">
+    <RadzenCard Variant=Variant.Outlined Style="max-width: 200px">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline">Units</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1"><b>@(UnitsCount)</b></RadzenText>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+    <RadzenCard Variant=Variant.Outlined Style="max-width: 200px">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline">Contexts</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1"><b>@(ContextsCount)</b></RadzenText>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+        <RadzenCard Variant=Variant.Outlined Style="max-width: 200px">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline">Facts</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1"><b>@(FactsCount)</b></RadzenText>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+        <RadzenCard Variant=Variant.Outlined Style="max-width: 200px">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline">Validation Errors</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1"><b>@(ValidationErrorsCount)</b></RadzenText>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+</RadzenStack>
 
-Welcome to your new app.
+@code {
+    [CascadingParameter]
+    public XbrlDocument? XbrlDoc { get; set; }
+    public string UnitsCount
+    {
+        get
+        {
+            if(IsDocumentLoaded() == false)
+            {
+                return "-";
+            }     
+            return XbrlDoc.XbrlFragments[0].Units.Count.ToString();
+        }
+    }
+
+    public string ContextsCount
+    {
+        get
+        {
+            if(IsDocumentLoaded() == false)
+            {
+                return "-";
+            }     
+            return XbrlDoc.XbrlFragments[0].Contexts.Count.ToString();
+        }
+    }
+
+    public string FactsCount
+    {
+        get
+        {
+            if(IsDocumentLoaded() == false)
+            {
+                return "-";
+            }     
+            return XbrlDoc.XbrlFragments[0].Facts.Count.ToString();
+        }
+    }
+
+    public string ValidationErrorsCount
+    {
+        get
+        {
+            if(IsDocumentLoaded() == false)
+            {
+                return "-";
+            }     
+            return XbrlDoc.XbrlFragments[0].ValidationErrors.Count.ToString();
+        }
+    }
+
+    private bool IsDocumentLoaded()
+    {
+        if(XbrlDoc.XbrlFragments.Count == 0)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        StateHasChanged();
+    }
+}
