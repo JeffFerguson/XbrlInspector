@@ -1,0 +1,81 @@
+@page "/context"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+<PageTitle>Context</PageTitle>
+
+<h1>Contexts</h1>
+
+@if(IsDocumentLoaded() == false)
+{
+    <RadzenAlert AllowClose="false" AlertStyle="AlertStyle.Danger" Variant="Variant.Filled" Shade="Shade.Darker">
+        No XBRL document instance loaded. Load a document before inspecting document data.
+    </RadzenAlert>
+}
+
+<RadzenDataGrid
+    Data="@allContexts"
+    TItem="JeffFerguson.Gepsio.Context"
+    AllowVirtualization="true"
+    AllowFiltering="true"
+    FilterPopupRenderMode="PopupRenderMode.OnDemand"
+    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+    LogicalFilterOperator="LogicalFilterOperator.Or"
+    AllowSorting="true"
+>
+    <Columns>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Property="Id" Title="ID" />
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Property="Identifier" Title="Identifier" />
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Property="IdentifierScheme" Title="Identifier Scheme" />
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Title="Date">
+            <Template Context="currentContext">
+                @GetDisplayableDate(currentContext);
+            </Template>
+        </RadzenDataGridColumn>        
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    [CascadingParameter]
+    public XbrlDocument? XbrlDoc { get; set; }
+    IEnumerable<JeffFerguson.Gepsio.Context> allContexts;
+    private bool IsDocumentLoaded()
+    {
+        if(XbrlDoc.XbrlFragments.Count == 0)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private string GetDisplayableDate(JeffFerguson.Gepsio.Context currentContext)
+    {
+        if(currentContext.ForeverPeriod == true)
+        {
+            return "forever";
+        } 
+        if(currentContext.InstantPeriod == true)
+        {
+            return currentContext.InstantDate.ToShortDateString();
+        }
+        return $"from {currentContext.PeriodStartDate.ToShortDateString()} to {currentContext.PeriodEndDate.ToShortDateString()}";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if(IsDocumentLoaded() == false)
+        {  
+            allContexts = new List<JeffFerguson.Gepsio.Context>().AsEnumerable<JeffFerguson.Gepsio.Context>();     
+        }
+        else
+        {
+            allContexts = XbrlDoc.XbrlFragments[0].Contexts.AsEnumerable<JeffFerguson.Gepsio.Context>();
+        }
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        StateHasChanged();
+    }
+}
