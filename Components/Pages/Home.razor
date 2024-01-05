@@ -50,6 +50,28 @@ else
     </RadzenCard>
 </RadzenStack>
 
+@if(IsDocumentLoaded() == true)
+{
+    @if(XbrlDoc.XbrlFragments[0].ValidationErrors.Count == 0)
+    {
+        <RadzenAlert AllowClose="false" AlertStyle="AlertStyle.Success" Variant="Variant.Filled" Shade="Shade.Darker">
+            This document instance is valid according to the XBRL specification.
+        </RadzenAlert>
+    }
+    else
+    {
+        <h2>Validation Errors</h2>
+        <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start">
+            @foreach(var currentValidationError in XbrlDoc.XbrlFragments[0].ValidationErrors)
+            {
+                <RadzenAlert AllowClose="false" AlertStyle="AlertStyle.Danger" Variant="Variant.Filled" Shade="Shade.Darker">
+                    @currentValidationError.Message
+                </RadzenAlert>
+            }
+        </RadzenStack>
+    }
+}
+
 @code {
     [CascadingParameter]
     public XbrlDocument? XbrlDoc { get; set; }
