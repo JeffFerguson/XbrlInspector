@@ -16,12 +16,15 @@
 <RadzenDataGrid
     Data="@allUnits"
     TItem="JeffFerguson.Gepsio.Unit"
-    AllowVirtualization="true"
+    AllowVirtualization="false"
     AllowFiltering="true"
     FilterPopupRenderMode="PopupRenderMode.OnDemand"
     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
     LogicalFilterOperator="LogicalFilterOperator.Or"
     AllowSorting="true"
+    PageSize="10"
+    AllowPaging="true"
+    ShowPagingSummary="true"
 >
     <Columns>
         <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Unit" Property="Id" Title="ID" />
