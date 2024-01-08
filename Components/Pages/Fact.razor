@@ -1,0 +1,166 @@
+@page "/fact"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+<PageTitle>Fact</PageTitle>
+
+<h1>Facts</h1>
+
+@if(IsDocumentLoaded() == false)
+{
+    <RadzenAlert AllowClose="false" AlertStyle="AlertStyle.Danger" Variant="Variant.Filled" Shade="Shade.Darker">
+        No XBRL document instance loaded. Load a document before inspecting document data.
+    </RadzenAlert>
+}
+
+<RadzenDataGrid
+    Data="@allFacts"
+    TItem="JeffFerguson.Gepsio.Fact"
+    AllowVirtualization="false"
+    AllowFiltering="true"
+    FilterPopupRenderMode="PopupRenderMode.OnDemand"
+    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+    LogicalFilterOperator="LogicalFilterOperator.Or"
+    AllowSorting="true"
+    PageSize="10"
+    AllowPaging="true"
+    ShowPagingSummary="true"
+>
+    <Columns>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Fact" Property="Id" Title="ID" />
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Fact" Property="Name" Title="Name" />
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Fact" Property="Name" Title="Type (Item or Tuple)">
+            <Template Context="currentFact">
+                @GetFactType(currentFact);
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Fact" Property="Name" Title="Value">
+            <Template Context="currentFact">
+                @GetFactValue(currentFact);
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Fact" Property="Name" Title="Unit">
+            <Template Context="currentFact">
+                @GetFactUnit(currentFact);
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Fact" Property="Name" Title="Context">
+            <Template Context="currentFact">
+                @GetFactContext(currentFact);
+            </Template>
+        </RadzenDataGridColumn>    
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    [CascadingParameter]
+    public XbrlDocument? XbrlDoc { get; set; }
+    IEnumerable<JeffFerguson.Gepsio.Fact> allFacts;
+
+    private bool IsDocumentLoaded()
+    {
+        if(XbrlDoc.XbrlFragments.Count == 0)
+        {
+            return false;
+        }
+        return true;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if(IsDocumentLoaded() == false)
+        {
+            //JeffFerguson.Gepsio.Fact newFact;
+  
+            allFacts = new List<JeffFerguson.Gepsio.Fact>().AsEnumerable<JeffFerguson.Gepsio.Fact>();     
+        }
+        else
+        {
+            allFacts = XbrlDoc.XbrlFragments[0].Facts.AsEnumerable<JeffFerguson.Gepsio.Fact>();
+        }
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        StateHasChanged();
+    }
+
+    private string GetFactType(JeffFerguson.Gepsio.Fact currentFact)
+    {
+        if(currentFact is JeffFerguson.Gepsio.Item)
+        {
+            return "Item";
+        }
+        if(currentFact is JeffFerguson.Gepsio.Tuple)
+        {
+            return "Tuple";
+        }
+        return "Unknown";
+    }
+
+    private string GetFactValue(JeffFerguson.Gepsio.Fact currentFact)
+    {
+        if(currentFact is JeffFerguson.Gepsio.Item)
+        {
+            JeffFerguson.Gepsio.Item currentItem = currentFact as JeffFerguson.Gepsio.Item;
+
+            return currentItem.Value.ToString();
+        }
+        if(currentFact is JeffFerguson.Gepsio.Tuple)
+        {
+            JeffFerguson.Gepsio.Tuple currentTuple = currentFact as JeffFerguson.Gepsio.Tuple;
+            var tupleFacts = currentTuple.Facts;
+            var tupleValues = string.Empty;
+
+            foreach(var tupleFact in tupleFacts)
+            {
+                var tupleFactValue = GetFactValue(tupleFact);
+                if(string.IsNullOrEmpty(tupleValues) == false)
+                {
+                    tupleValues += ", ";
+                    tupleValues += tupleFactValue;
+                }
+            }
+            return tupleValues;
+        }
+        return "Unknown";
+    }
+
+    private string GetFactUnit(JeffFerguson.Gepsio.Fact currentFact)
+    {
+        if(currentFact is JeffFerguson.Gepsio.Item)
+        {
+            JeffFerguson.Gepsio.Item currentItem = currentFact as JeffFerguson.Gepsio.Item;
+
+            if(currentItem.UnitRef == null)
+            {
+                return "-";
+            }
+            if(currentItem.UnitRef.MeasureQualifiedNames == null)
+            {
+                return "-";
+            }
+            return String.Join(",", currentItem.UnitRef.MeasureQualifiedNames);
+        }
+        if(currentFact is JeffFerguson.Gepsio.Tuple)
+        {
+            return "(multiple)";
+        }
+        return "Unknown";
+    }
+
+    private string GetFactContext(JeffFerguson.Gepsio.Fact currentFact)
+    {
+        if(currentFact is JeffFerguson.Gepsio.Item)
+        {
+            JeffFerguson.Gepsio.Item currentItem = currentFact as JeffFerguson.Gepsio.Item;
+
+            return currentItem.ContextRef.Id;
+        }
+        if(currentFact is JeffFerguson.Gepsio.Tuple)
+        {
+            return "(multiple)";
+        }
+        return "Unknown";
+    }
+}
