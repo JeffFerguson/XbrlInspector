@@ -1,12 +1,13 @@
 using XbrlInspector.Components;
 using JeffFerguson.Gepsio;
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddCascadingValue(sp => new XbrlDocument());
+builder.Services.AddRadzenComponents();
 
 var app = builder.Build();
 

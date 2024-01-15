@@ -1,6 +1,7 @@
 @page "/context"
 @attribute [StreamRendering]
 @rendermode InteractiveServer
+@inject DialogService DialogService
 
 <PageTitle>Context</PageTitle>
 
@@ -13,35 +14,102 @@
     </RadzenAlert>
 }
 
-<RadzenDataGrid
-    Data="@allContexts"
-    TItem="JeffFerguson.Gepsio.Context"
-    AllowVirtualization="false"
-    PageSize="10"
-    AllowPaging="true"
-    AllowFiltering="true"
-    FilterPopupRenderMode="PopupRenderMode.OnDemand"
-    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-    LogicalFilterOperator="LogicalFilterOperator.Or"
-    AllowSorting="true"
-    ShowPagingSummary="true"
->
-    <Columns>
-        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Property="Id" Title="ID" />
-        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Property="Identifier" Title="Identifier" />
-        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Property="IdentifierScheme" Title="Identifier Scheme" />
-        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Title="Date">
-            <Template Context="currentContext">
-                @GetDisplayableDate(currentContext);
-            </Template>
-        </RadzenDataGridColumn>        
-    </Columns>
-</RadzenDataGrid>
+<RadzenTabs>
+    <Tabs>
+        <RadzenTabsItem Text="List View">
+            <RadzenDataGrid
+                Data="@allContexts"
+                TItem="JeffFerguson.Gepsio.Context"
+                AllowVirtualization="false"
+                PageSize="10"
+                AllowPaging="true"
+                AllowFiltering="true"
+                FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                LogicalFilterOperator="LogicalFilterOperator.Or"
+                AllowSorting="true"
+                ShowPagingSummary="true"
+            >
+                <Columns>
+                    <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Property="Id" Title="ID" />
+                    <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Property="Identifier" Title="Identifier" />
+                    <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Property="IdentifierScheme" Title="Identifier Scheme" />
+                    <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Title="Date">
+                        <Template Context="currentContext">
+                            @GetDisplayableDate(currentContext);
+                        </Template>
+                    </RadzenDataGridColumn>        
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="Calendar View">
+            <RadzenScheduler style="height: 768px;" TItem="DisplayableContext" Data=@allDisplayableContexts StartProperty="StartDate" EndProperty="EndDate" TextProperty="Text" SelectedIndex="3">
+                <RadzenDayView />
+                <RadzenWeekView />
+                <RadzenMonthView />
+                <RadzenYearView />
+                <RadzenYearPlannerView />
+            </RadzenScheduler>         
+        </RadzenTabsItem>
+    </Tabs>
+</RadzenTabs>
 
 @code {
     [CascadingParameter]
     public XbrlDocument? XbrlDoc { get; set; }
     IEnumerable<JeffFerguson.Gepsio.Context> allContexts;
+
+    // An internal representation of an XBRL context.
+    //
+    // Ideally, the Radzen controls in this page could bind directly to a Gepsio Context object, like this:
+    //
+    // <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Property="Id" Title="ID" />
+    // <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Property="Identifier" Title="Identifier" />
+    // <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Property="IdentifierScheme" Title="Identifier Scheme" />
+    // <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Context" Title="Date">
+    // <Template Context="currentContext">
+    //     @GetDisplayableDate(currentContext);
+    // </Template>
+    // </RadzenDataGridColumn>
+    //
+    // Indeed, this works for a data grid, with the GetDisplayableDate() method returning a string which takes
+    // into account the difference between a context with an instant date and a context with a period date range.
+    //
+    // However, the page's Calendar view, which uses a RadzenScheduler control, requires binding to a start date
+    // property and an end date property. This can be done with something like the following:
+    //
+    // <RadzenScheduler
+    //     TItem="JeffFerguson.Gepsio.Context"
+    //     Data=@allContexts
+    //     StartProperty="PeriodStartDate"
+    //     EndProperty="PeriodEndDate"
+    //     TextProperty="Id"
+    //     ...
+    // >
+    //
+    // This, however, will not work for contexts with instant dates, since the Gepsio Context object uses a separate
+    // property to specify an instant date. Using the RadzenScheduler in this manner will only allow Context objects
+    // with period date ranges to display, since the Context object with instant dates will have NULL values for the
+    // period properties, and, as a result, Radzen will not display data for those objects.
+    //
+    // To combat this, a DisplayableContext structure will normalize date property values so that all Contexts can be
+    // represented by a date range, even though, for contexts with instant dates, the date range will be only one day
+    // long.
+    //
+    // The properties of the structure (and, indeed, the structure itself) must have public visibility. Setting the
+    // visibility of the properties to private, or even internal, prevent the Radzen control bindings from working.
+
+    public struct DisplayableContext
+    {
+        public DateTime StartDate;
+        public DateTime EndDate;
+        public string Text;
+        public string DisplayableDate;
+        public JeffFerguson.Gepsio.Context GepsioContext;
+    }
+    
+    IEnumerable<DisplayableContext> allDisplayableContexts; 
+
     private bool IsDocumentLoaded()
     {
         if(XbrlDoc.XbrlFragments.Count == 0)
@@ -69,16 +137,49 @@
         await base.OnInitializedAsync();
         if(IsDocumentLoaded() == false)
         {  
-            allContexts = new List<JeffFerguson.Gepsio.Context>().AsEnumerable<JeffFerguson.Gepsio.Context>();     
+            allContexts = new List<JeffFerguson.Gepsio.Context>().AsEnumerable<JeffFerguson.Gepsio.Context>(); 
+            allDisplayableContexts = new List<DisplayableContext>().AsEnumerable<DisplayableContext>();   
         }
         else
         {
             allContexts = XbrlDoc.XbrlFragments[0].Contexts.AsEnumerable<JeffFerguson.Gepsio.Context>();
+            ConstructDisplayableContextsCollection();
         }
     }
     protected override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
         StateHasChanged();
+    }
+
+    private void ConstructDisplayableContextsCollection()
+    {
+        var allDisplayableContextsList = new List<DisplayableContext>();
+        foreach(var currentGepsioContext in allContexts)
+        {
+            var newDisplayableContext = new DisplayableContext();
+            if(currentGepsioContext.DurationPeriod == true)
+            {
+                newDisplayableContext.StartDate = currentGepsioContext.PeriodStartDate;
+                newDisplayableContext.EndDate = currentGepsioContext.PeriodEndDate;
+                newDisplayableContext.DisplayableDate = $"{currentGepsioContext.PeriodStartDate.ToShortDateString()}-{currentGepsioContext.PeriodEndDate.ToShortDateString()}";
+            }
+            else if(currentGepsioContext.InstantPeriod == true)
+            {
+                newDisplayableContext.StartDate = currentGepsioContext.InstantDate;
+                newDisplayableContext.EndDate = currentGepsioContext.InstantDate;
+                newDisplayableContext.DisplayableDate = currentGepsioContext.InstantDate.ToShortDateString();
+            }
+            else if(currentGepsioContext.ForeverPeriod == true)
+            {
+                newDisplayableContext.StartDate = DateTime.MinValue;
+                newDisplayableContext.EndDate = DateTime.MaxValue;
+                newDisplayableContext.DisplayableDate = "forever";                
+            }
+            newDisplayableContext.Text = currentGepsioContext.Id;
+            newDisplayableContext.GepsioContext = currentGepsioContext;
+            allDisplayableContextsList.Add(newDisplayableContext);
+        }
+        allDisplayableContexts = allDisplayableContextsList;
     }
 }
