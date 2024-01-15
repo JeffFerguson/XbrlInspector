@@ -57,7 +57,7 @@
 @code {
     [CascadingParameter]
     public XbrlDocument? XbrlDoc { get; set; }
-    IEnumerable<JeffFerguson.Gepsio.Context> allContexts;
+    IEnumerable<JeffFerguson.Gepsio.Context>? allContexts;
 
     // An internal representation of an XBRL context.
     //
@@ -108,11 +108,11 @@
         public JeffFerguson.Gepsio.Context GepsioContext;
     }
     
-    IEnumerable<DisplayableContext> allDisplayableContexts; 
+    IEnumerable<DisplayableContext>? allDisplayableContexts; 
 
     private bool IsDocumentLoaded()
     {
-        if(XbrlDoc.XbrlFragments.Count == 0)
+        if(XbrlDoc?.XbrlFragments.Count == 0)
         {
             return false;
         }
@@ -142,7 +142,7 @@
         }
         else
         {
-            allContexts = XbrlDoc.XbrlFragments[0].Contexts.AsEnumerable<JeffFerguson.Gepsio.Context>();
+            allContexts = XbrlDoc?.XbrlFragments[0].Contexts.AsEnumerable<JeffFerguson.Gepsio.Context>();
             ConstructDisplayableContextsCollection();
         }
     }
@@ -154,6 +154,10 @@
 
     private void ConstructDisplayableContextsCollection()
     {
+        if(allContexts == null)
+        {
+            return;
+        }
         var allDisplayableContextsList = new List<DisplayableContext>();
         foreach(var currentGepsioContext in allContexts)
         {

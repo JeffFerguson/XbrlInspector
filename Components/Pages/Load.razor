@@ -22,9 +22,8 @@
 
     async Task OnLoadFromUrl()
     {
-        //XbrlDoc = new XbrlDocument();
         loadingInProgress = true;
-        await XbrlDoc.LoadAsync(urlOfXbrlDocument);
+        await XbrlDoc!.LoadAsync(urlOfXbrlDocument);
         loadingInProgress = false;
     }
 }

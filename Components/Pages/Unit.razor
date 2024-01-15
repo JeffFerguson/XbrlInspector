@@ -41,11 +41,11 @@
 @code {
     [CascadingParameter]
     public XbrlDocument? XbrlDoc { get; set; }
-    IEnumerable<JeffFerguson.Gepsio.Unit> allUnits;
+    IEnumerable<JeffFerguson.Gepsio.Unit>? allUnits;
 
     private bool IsDocumentLoaded()
     {
-        if(XbrlDoc.XbrlFragments.Count == 0)
+        if(XbrlDoc!.XbrlFragments.Count == 0)
         {
             return false;
         }
@@ -61,7 +61,7 @@
         }
         else
         {
-            allUnits = XbrlDoc.XbrlFragments[0].Units.AsEnumerable<JeffFerguson.Gepsio.Unit>();
+            allUnits = XbrlDoc?.XbrlFragments[0].Units.AsEnumerable<JeffFerguson.Gepsio.Unit>();
         }
     }
 

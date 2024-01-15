@@ -52,7 +52,7 @@ else
 
 @if(IsDocumentLoaded() == true)
 {
-    @if(XbrlDoc.XbrlFragments[0].ValidationErrors.Count == 0)
+    @if(XbrlDoc!.XbrlFragments[0].ValidationErrors.Count == 0)
     {
         <RadzenAlert AllowClose="false" AlertStyle="AlertStyle.Success" Variant="Variant.Filled" Shade="Shade.Darker">
             This document instance is valid according to the XBRL specification.
@@ -83,7 +83,7 @@ else
             {
                 return "-";
             }     
-            return XbrlDoc.XbrlFragments[0].Units.Count.ToString();
+            return XbrlDoc!.XbrlFragments[0].Units.Count.ToString();
         }
     }
 
@@ -95,7 +95,7 @@ else
             {
                 return "-";
             }     
-            return XbrlDoc.XbrlFragments[0].Contexts.Count.ToString();
+            return XbrlDoc!.XbrlFragments[0].Contexts.Count.ToString();
         }
     }
 
@@ -107,7 +107,7 @@ else
             {
                 return "-";
             }     
-            return XbrlDoc.XbrlFragments[0].Facts.Count.ToString();
+            return XbrlDoc!.XbrlFragments[0].Facts.Count.ToString();
         }
     }
 
@@ -119,13 +119,13 @@ else
             {
                 return "-";
             }     
-            return XbrlDoc.XbrlFragments[0].ValidationErrors.Count.ToString();
+            return XbrlDoc!.XbrlFragments[0].ValidationErrors.Count.ToString();
         }
     }
 
     private bool IsDocumentLoaded()
     {
-        if(XbrlDoc.XbrlFragments.Count == 0)
+        if(XbrlDoc!.XbrlFragments.Count == 0)
         {
             return false;
         }
