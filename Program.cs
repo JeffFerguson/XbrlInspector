@@ -1,6 +1,7 @@
 using XbrlInspector.Components;
 using JeffFerguson.Gepsio;
 using Radzen;
+using XbrlInspector.MessageBroker;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,11 +21,8 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 app.UseAntiforgery();
-
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
 app.Run();

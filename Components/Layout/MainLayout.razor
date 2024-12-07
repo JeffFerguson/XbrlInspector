@@ -35,6 +35,17 @@
 </RadzenLayout>
 <RadzenComponents />
 
-@code {
+@code
+{
     bool sidebarExpanded = true;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        MessageBroker.Instance.Subscribe<XbrlDocumentLoaded>(OnXbrlDocumentLoaded);
+    }
+
+    private void OnXbrlDocumentLoaded(MessagePayload<XbrlDocumentLoaded> payload)
+    {
+    }
 }

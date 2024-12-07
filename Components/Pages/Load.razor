@@ -20,10 +20,11 @@
     string urlOfXbrlDocument = string.Empty;
     bool loadingInProgress = false;
 
-    async Task OnLoadFromUrl()
+    async Task OnLoadFromUrl() 
     {
         loadingInProgress = true;
         await XbrlDoc!.LoadAsync(urlOfXbrlDocument);
         loadingInProgress = false;
+        MessageBroker.Instance.Publish<XbrlDocumentLoaded>(this, new XbrlDocumentLoaded());
     }
 }
