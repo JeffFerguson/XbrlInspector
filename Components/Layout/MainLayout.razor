@@ -10,20 +10,20 @@
     <RadzenSidebar @bind-Expanded="@sidebarExpanded">
         <!-- Material icon list at https://fonts.google.com/icons -->
         <RadzenPanelMenu>
-            <NavLink class="nav-link" Match="NavLinkMatch.All" href="">
-                <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" />
-            </NavLink>
             <NavLink class="nav-link" Match="NavLinkMatch.All" href="load">
                 <RadzenPanelMenuItem Text="Load" Icon="upload_file" />
             </NavLink>
+            <NavLink class="nav-link" Match="NavLinkMatch.All" href="">
+                <RadzenPanelMenuItem @bind-Visible="ShowMenuItems" Text="Dashboard" Icon="dashboard" />
+            </NavLink>
             <NavLink class="nav-link" Match="NavLinkMatch.All" href="fact">
-                <RadzenPanelMenuItem Text="Facts" Icon="dataset" />
+                <RadzenPanelMenuItem @bind-Visible="ShowMenuItems" Text="Facts" Icon="dataset" />
             </NavLink>
             <NavLink class="nav-link" Match="NavLinkMatch.All" href="unit">
-                <RadzenPanelMenuItem Text="Units" Icon="account_balance" />
+                <RadzenPanelMenuItem @bind-Visible="ShowMenuItems" Text="Units" Icon="account_balance" />
             </NavLink>
             <NavLink class="nav-link" Match="NavLinkMatch.All" href="context">
-                <RadzenPanelMenuItem Text="Contexts" Icon="calendar_month" />
+                <RadzenPanelMenuItem @bind-Visible="ShowMenuItems" Text="Contexts" Icon="calendar_month" />
             </NavLink>
         </RadzenPanelMenu>
     </RadzenSidebar>
@@ -38,6 +38,7 @@
 @code
 {
     bool sidebarExpanded = true;
+    bool ShowMenuItems = false;
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -47,5 +48,7 @@
 
     private void OnXbrlDocumentLoaded(MessagePayload<XbrlDocumentLoaded> payload)
     {
+        ShowMenuItems = true;
+        InvokeAsync(StateHasChanged);
     }
 }
