@@ -1,4 +1,12 @@
+@*
+This page takes as a URL "parameter" the zero-based index of the XBRL fragment containing the items to be
+displayed on the page. It is assumed here that the XBRL document has already been loaded and that the
+items are ready to be examined through the Gepsio object model.
+*@
+
 @page "/fact"
+@page "/fact/{FragmentIndex:int}"
+
 @attribute [StreamRendering]
 @rendermode InteractiveServer
 
@@ -55,6 +63,10 @@
 @code {
     [CascadingParameter]
     public XbrlDocument? XbrlDoc { get; set; }
+
+    [Parameter]
+    public int FragmentIndex { get; set; }
+
     IEnumerable<JeffFerguson.Gepsio.Fact>? allFacts;
 
     private bool IsDocumentLoaded()
@@ -74,7 +86,7 @@
         }
         else
         {
-            allFacts = XbrlDoc?.XbrlFragments[0].Facts.AsEnumerable<JeffFerguson.Gepsio.Fact>();
+            allFacts = XbrlDoc?.XbrlFragments[FragmentIndex].Facts.AsEnumerable<JeffFerguson.Gepsio.Fact>();
         }
     }
     protected override void OnAfterRender(bool firstRender)

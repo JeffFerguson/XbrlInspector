@@ -1,4 +1,12 @@
+@*
+This page takes as a URL "parameter" the zero-based index of the XBRL fragment containing the items to be
+displayed on the page. It is assumed here that the XBRL document has already been loaded and that the
+items are ready to be examined through the Gepsio object model.
+*@
+
 @page "/context"
+@page "/context/{FragmentIndex:int}"
+
 @attribute [StreamRendering]
 @rendermode InteractiveServer
 @inject DialogService DialogService
@@ -57,6 +65,9 @@
 @code {
     [CascadingParameter]
     public XbrlDocument? XbrlDoc { get; set; }
+
+    [Parameter]
+    public int FragmentIndex { get; set; }
     IEnumerable<JeffFerguson.Gepsio.Context>? allContexts;
 
     // An internal representation of an XBRL context.
@@ -142,7 +153,7 @@
         }
         else
         {
-            allContexts = XbrlDoc?.XbrlFragments[0].Contexts.AsEnumerable<JeffFerguson.Gepsio.Context>();
+            allContexts = XbrlDoc?.XbrlFragments[FragmentIndex].Contexts.AsEnumerable<JeffFerguson.Gepsio.Context>();
             ConstructDisplayableContextsCollection();
         }
     }
