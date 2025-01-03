@@ -1,11 +1,4 @@
-@*
-This page takes as a URL "parameter" the zero-based index of the XBRL fragment containing the items to be
-displayed on the page. It is assumed here that the XBRL document has already been loaded and that the
-items are ready to be examined through the Gepsio object model.
-*@
-
-@page "/context"
-@page "/context/{FragmentIndex:int}"
+@page "/context/{FragmentId:guid}"
 
 @attribute [StreamRendering]
 @rendermode InteractiveServer
@@ -63,11 +56,10 @@ items are ready to be examined through the Gepsio object model.
 </RadzenTabs>
 
 @code {
-    [CascadingParameter]
-    public XbrlDocument? XbrlDoc { get; set; }
+    [CascadingParameter] public XbrlDocument? XbrlDoc { get; set; }
+    [CascadingParameter] public XbrlFragmentMap? FragmentMap { get; set; }
+    [Parameter] public Guid FragmentId { get; set; }
 
-    [Parameter]
-    public int FragmentIndex { get; set; }
     IEnumerable<JeffFerguson.Gepsio.Context>? allContexts;
 
     // An internal representation of an XBRL context.
@@ -153,7 +145,8 @@ items are ready to be examined through the Gepsio object model.
         }
         else
         {
-            allContexts = XbrlDoc?.XbrlFragments[FragmentIndex].Contexts.AsEnumerable<JeffFerguson.Gepsio.Context>();
+            var currentFragment = FragmentMap!.Get(FragmentId);
+            allContexts = currentFragment!.Contexts.AsEnumerable<JeffFerguson.Gepsio.Context>();
             ConstructDisplayableContextsCollection();
         }
     }

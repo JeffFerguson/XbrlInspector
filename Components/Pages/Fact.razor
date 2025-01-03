@@ -1,11 +1,4 @@
-@*
-This page takes as a URL "parameter" the zero-based index of the XBRL fragment containing the items to be
-displayed on the page. It is assumed here that the XBRL document has already been loaded and that the
-items are ready to be examined through the Gepsio object model.
-*@
-
-@page "/fact"
-@page "/fact/{FragmentIndex:int}"
+@page "/fact/{FragmentId:guid}"
 
 @attribute [StreamRendering]
 @rendermode InteractiveServer
@@ -61,11 +54,9 @@ items are ready to be examined through the Gepsio object model.
 </RadzenDataGrid>
 
 @code {
-    [CascadingParameter]
-    public XbrlDocument? XbrlDoc { get; set; }
-
-    [Parameter]
-    public int FragmentIndex { get; set; }
+    [CascadingParameter] public XbrlDocument? XbrlDoc { get; set; }
+    [CascadingParameter] public XbrlFragmentMap? FragmentMap { get; set; }
+    [Parameter] public Guid FragmentId { get; set; }
 
     IEnumerable<JeffFerguson.Gepsio.Fact>? allFacts;
 
@@ -86,9 +77,11 @@ items are ready to be examined through the Gepsio object model.
         }
         else
         {
-            allFacts = XbrlDoc?.XbrlFragments[FragmentIndex].Facts.AsEnumerable<JeffFerguson.Gepsio.Fact>();
+            var currentFragment = FragmentMap!.Get(FragmentId);
+            allFacts = currentFragment!.Facts.AsEnumerable<JeffFerguson.Gepsio.Fact>();
         }
     }
+
     protected override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);

@@ -18,34 +18,47 @@
                 <NavLink class="nav-link" Match="NavLinkMatch.All" href="">
                     <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" />
                 </NavLink>
-                fragmentIndex = 0;
                 @foreach(var currentXbrlFragment in XbrlDoc!.XbrlFragments)
                 {
-                    var currentFragmentIndex = fragmentIndex;
                     <RadzenPanelMenuItem Text="Fragment" Icon="article">
-                    @if(currentXbrlFragment.Facts.Count > 0)
-                    {
-                        var hrefDestination = "fact/" + currentFragmentIndex;
-                        <NavLink class="nav-link" Match="NavLinkMatch.All" href=@hrefDestination>
-                            <RadzenPanelMenuItem Text="Facts" Icon="dataset" />
-                        </NavLink>                                
-                    }
-                    @if(currentXbrlFragment.Units.Count > 0)
-                    {
-                        var hrefDestination = "unit/" + currentFragmentIndex;
-                        <NavLink class="nav-link" Match="NavLinkMatch.All" href=@hrefDestination>
-                            <RadzenPanelMenuItem Text="Units" Icon="account_balance" />
-                        </NavLink>                             
-                    }
-                    @if(currentXbrlFragment.Contexts.Count > 0)
-                    {
-                        var hrefDestination = "context/" + currentFragmentIndex;
-                        <NavLink class="nav-link" Match="NavLinkMatch.All" href=@hrefDestination>
-                            <RadzenPanelMenuItem Text="Contexts" Icon="calendar_month" />
-                        </NavLink>                       
-                    }
+                        @{
+                            var fragmentId = FragmentMap!.Add(currentXbrlFragment);
+                            if(currentXbrlFragment.Facts.Count > 0)
+                            {
+                                var hrefDestination = "fact/" + fragmentId;
+                                <NavLink class="nav-link" Match="NavLinkMatch.All" href=@hrefDestination>
+                                    <RadzenPanelMenuItem Text="Facts" Icon="dataset" />
+                                </NavLink>                                
+                            }
+                            if(currentXbrlFragment.Units.Count > 0)
+                            {
+                                var hrefDestination = "unit/" + fragmentId;
+                                <NavLink class="nav-link" Match="NavLinkMatch.All" href=@hrefDestination>
+                                    <RadzenPanelMenuItem Text="Units" Icon="account_balance" />
+                                </NavLink>                             
+                            }
+                            if(currentXbrlFragment.Contexts.Count > 0)
+                            {
+                                var hrefDestination = "context/" + fragmentId;
+                                <NavLink class="nav-link" Match="NavLinkMatch.All" href=@hrefDestination>
+                                    <RadzenPanelMenuItem Text="Contexts" Icon="calendar_month" />
+                                </NavLink>                       
+                            }
+                            if(currentXbrlFragment.Schemas.Count > 0)
+                            {
+                                <RadzenPanelMenuItem Text="Schemas" Icon="schema">
+                                    @foreach(var currentSchema in currentXbrlFragment.Schemas)
+                                    {
+                                        var schemaId = SchemaMap!.Add(currentSchema);
+                                        var hrefDestination = "schema/" + schemaId;
+                                        <NavLink class="nav-link" Match="NavLinkMatch.All" href=@hrefDestination>
+                                            <RadzenPanelMenuItem Text="Schema" Icon="schema" />
+                                        </NavLink>             
+                                    }
+                                </RadzenPanelMenuItem>
+                            }
+                        }
                     </RadzenPanelMenuItem>
-                    fragmentIndex++;
                 }
             }
         </RadzenPanelMenu>
@@ -60,12 +73,11 @@
 
 @code
 {
-    [CascadingParameter]
-    public XbrlDocument? XbrlDoc { get; set; }
-
+    [CascadingParameter] public XbrlDocument? XbrlDoc { get; set; }
+    [CascadingParameter] public XbrlFragmentMap? FragmentMap { get; set; }
+    [CascadingParameter] public XbrlSchemaMap? SchemaMap { get; set; }
     bool sidebarExpanded = true;
     bool ShowMenuItems = false;
-    int fragmentIndex = 0;
 
     protected override void OnAfterRender(bool firstRender)
     {

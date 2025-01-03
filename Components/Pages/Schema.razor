@@ -1,0 +1,149 @@
+@page "/schema/{SchemaId:guid}"
+
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+<PageTitle>Schema</PageTitle>
+
+<h1>Schema Overview</h1>
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Wrap="FlexWrap.Wrap">
+    <RadzenCard Variant=Variant.Outlined>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline">Target Namespace</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1"><b>@CurrentSchema.TargetNamespace</b></RadzenText>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+    <RadzenCard Variant=Variant.Outlined>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline">Source</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1"><b>@CurrentSchema.LoadPath</b></RadzenText>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+    <RadzenCard Variant=Variant.Outlined>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline">Elements</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1"><b>@CurrentSchema.Elements.Count</b></RadzenText>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+</RadzenStack>
+
+<h2>Elements</h2>
+
+<RadzenDataGrid
+    Data="@allElements"
+    TItem="JeffFerguson.Gepsio.Xsd.Element"
+    AllowVirtualization="false"
+    AllowFiltering="true"
+    FilterPopupRenderMode="PopupRenderMode.OnDemand"
+    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+    LogicalFilterOperator="LogicalFilterOperator.Or"
+    AllowSorting="true"
+    PageSize="10"
+    AllowPaging="true"
+    ShowPagingSummary="true"
+>
+    <Columns>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="Id" Title="ID">
+            <Template Context="currentElement">
+                @GetElementId(currentElement)
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="Name" Title="Name">
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="Default" Title="Default">
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="IsAbstract" Title="Abstract?">
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="SubstitutionGroup" Title="Substitution Group">
+            <Template Context="currentElement">
+                @GetElementSubstitutionGroup(currentElement)
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="PeriodType" Title="Period Type">
+            <Template Context="currentElement">
+                @GetElementPeriodType(currentElement)
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    [CascadingParameter] public XbrlSchemaMap? SchemaMap { get; set; }
+    [Parameter] public Guid SchemaId { get; set; }
+    public required XbrlSchema CurrentSchema { get; set; }
+
+    IEnumerable<JeffFerguson.Gepsio.Xsd.Element>? allElements;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        CurrentSchema = SchemaMap.Get(SchemaId);
+        if(CurrentSchema == null)
+        {
+            allElements = new List<JeffFerguson.Gepsio.Xsd.Element>().AsEnumerable<JeffFerguson.Gepsio.Xsd.Element>();
+        }
+        else
+        {
+            allElements = CurrentSchema.Elements.AsEnumerable<JeffFerguson.Gepsio.Xsd.Element>();
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        CurrentSchema = SchemaMap.Get(SchemaId);
+        if(CurrentSchema == null)
+        {
+            allElements = new List<JeffFerguson.Gepsio.Xsd.Element>().AsEnumerable<JeffFerguson.Gepsio.Xsd.Element>();
+        }
+        else
+        {
+            allElements = CurrentSchema.Elements.AsEnumerable<JeffFerguson.Gepsio.Xsd.Element>();
+        }
+        StateHasChanged();
+    }
+
+    private string GetElementId(JeffFerguson.Gepsio.Xsd.Element element)
+    {
+        if(string.IsNullOrEmpty(element.Id) == true)
+        {
+            return string.Empty;
+        }
+        return element.Id;
+    }
+
+    private string GetElementSubstitutionGroup(JeffFerguson.Gepsio.Xsd.Element element)
+    {
+        switch(element.SubstitutionGroup)
+        {
+            case JeffFerguson.Gepsio.Xsd.Element.ElementSubstitutionGroup.Item:
+                return "Item";
+            case JeffFerguson.Gepsio.Xsd.Element.ElementSubstitutionGroup.Tuple:
+                return "Tuple";
+            case JeffFerguson.Gepsio.Xsd.Element.ElementSubstitutionGroup.DimensionItem:
+                return "Dimension Item";
+            case JeffFerguson.Gepsio.Xsd.Element.ElementSubstitutionGroup.HypercubeItem:
+                return "Hypercube Item";
+            default:
+                return "Unknown";
+        }
+    }
+ 
+    private string GetElementPeriodType(JeffFerguson.Gepsio.Xsd.Element element)
+    {
+        switch(element.PeriodType)
+        {
+            case JeffFerguson.Gepsio.Xsd.Element.ElementPeriodType.Instant:
+                return "Instant";
+            case JeffFerguson.Gepsio.Xsd.Element.ElementPeriodType.Duration:
+                return "Duration";
+            default:
+                return "Unknown";
+        }
+    }
+}

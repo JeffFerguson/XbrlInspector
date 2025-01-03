@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gepsio" Version="2.1.0.18" />
+    <PackageReference Include="Gepsio" Version="2.1.0.19" />
     <PackageReference Include="Radzen.Blazor" Version="5.6.11" />
   </ItemGroup>
 
