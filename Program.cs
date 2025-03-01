@@ -10,6 +10,7 @@ builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddCascadingValue(sp => new XbrlDocument());
 builder.Services.AddCascadingValue(sp => new XbrlFragmentMap());
 builder.Services.AddCascadingValue(sp => new XbrlSchemaMap());
+builder.Services.AddCascadingValue(sp => new CalculationLinkMap());
 builder.Services.AddRadzenComponents();
 
 var app = builder.Build();

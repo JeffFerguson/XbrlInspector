@@ -1,0 +1,56 @@
+@page "/calclink/{CalculationLinkId:guid}"
+
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+<PageTitle>Calculation</PageTitle>
+
+<h1>Calculation Overview</h1>
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Wrap="FlexWrap.Wrap">
+    @foreach(var currentSummationConcept in CurrentCalcLink.SummationConcepts)
+    {
+        <RadzenCard Variant=Variant.Outlined>
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+                <RadzenStack Gap="0">
+                    <RadzenText TextStyle="TextStyle.Overline">Equation</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1"><b>@GetEquation(currentSummationConcept)</b></RadzenText>
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenCard>
+    }
+</RadzenStack>
+
+@code
+{
+    [CascadingParameter] public required CalculationLinkMap CalcLinkMap { get; set; }
+    [Parameter] public Guid CalculationLinkId { get; set; }
+    public required CalculationLink CurrentCalcLink { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        CurrentCalcLink = CalcLinkMap!.Get(CalculationLinkId);
+    }
+
+    protected override void OnParametersSet()
+    {
+        CurrentCalcLink = CalcLinkMap!.Get(CalculationLinkId);
+        StateHasChanged();
+    }
+
+    private string GetEquation(SummationConcept currentSummationConcept)
+    {
+        var equation = string.Empty;
+        foreach(var currentContributingConceptLocator in currentSummationConcept.ContributingConceptLocators)
+        {
+            if(string.IsNullOrEmpty(equation) == false)
+            {
+                equation += " + ";                
+            }
+            equation += currentContributingConceptLocator.HrefResourceId;
+        }
+        equation += " = ";
+        equation += currentSummationConcept.SummationConceptLocator.HrefResourceId;
+        return equation;
+    }
+}

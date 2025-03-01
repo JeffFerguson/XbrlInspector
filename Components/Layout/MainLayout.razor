@@ -67,7 +67,32 @@
                         }
                     } 
                     </RadzenPanelMenuItem>
-                }           
+                }
+                @if(CalculationLinkbasesAvailable() == true)
+                {
+                    <RadzenPanelMenuItem Text="Calculations" Icon="calculate">                
+                    @foreach(var currentXbrlFragment in XbrlDoc!.XbrlFragments)
+                    {
+                        if(currentXbrlFragment.Schemas.Count > 0)
+                        {
+                            foreach(var currentSchema in currentXbrlFragment.Schemas)
+                            {
+                                foreach(var currentCalculationLinkbase in currentSchema.CalculationLinkbases)
+                                {
+                                    foreach(var currentCalculationLink in currentCalculationLinkbase.CalculationLinks)
+                                    {
+                                        var calculationLinkId = CalculationLinkMap!.Add(currentCalculationLink);
+                                        var hrefDestination = "calclink/" + calculationLinkId;
+                                        <NavLink class="nav-link" Match="NavLinkMatch.All" href=@hrefDestination>
+                                            <RadzenPanelMenuItem Text="Calculation" Icon="calculate" />
+                                        </NavLink>     
+                                    }                             
+                                }      
+                            }
+                        }
+                    } 
+                    </RadzenPanelMenuItem>
+                }        
             }
         </RadzenPanelMenu>
     </RadzenSidebar>
@@ -84,6 +109,8 @@
     [CascadingParameter] public XbrlDocument? XbrlDoc { get; set; }
     [CascadingParameter] public XbrlFragmentMap? FragmentMap { get; set; }
     [CascadingParameter] public XbrlSchemaMap? SchemaMap { get; set; }
+    [CascadingParameter] public CalculationLinkMap? CalculationLinkMap { get; set;}
+
     bool sidebarExpanded = true;
     bool ShowMenuItems = false;
 
@@ -106,6 +133,21 @@
             if(currentFragment.Schemas.Count > 0)
             {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    private bool CalculationLinkbasesAvailable()
+    {
+        foreach(var currentFragment in XbrlDoc!.XbrlFragments)
+        {            
+            foreach(var currentSchema in currentFragment.Schemas)
+            {
+                if(currentSchema.CalculationLinkbases.Count() > 0)
+                {
+                    return true;
+                }
             }
         }
         return false;
