@@ -31,6 +31,14 @@
             </RadzenStack>
         </RadzenStack>
     </RadzenCard>
+    <RadzenCard Variant=Variant.Outlined>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline">Documentation</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1"><b>@GetDocumentation()</b></RadzenText>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
 </RadzenStack>
 
 <h2>Elements</h2>
@@ -47,25 +55,33 @@
     PageSize="10"
     AllowPaging="true"
     ShowPagingSummary="true"
+    AllowColumnResizing="true"
 >
     <Columns>
-        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="Id" Title="ID">
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="Id" Title="ID" Resizable="true">
             <Template Context="currentElement">
                 @GetElementId(currentElement)
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="Name" Title="Name">
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="SourceUri" Title="Sourced From" Resizable="true">
+            <Template Context="currentElement">
+                @GetSourceUri(currentElement)
+            </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="Default" Title="Default">
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="Namespace" Title="Namespace" Resizable="true">
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="IsAbstract" Title="Abstract?">
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="Name" Title="Name" Resizable="true">
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="SubstitutionGroup" Title="Substitution Group">
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="Default" Title="Default" Resizable="true">
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="IsAbstract" Title="Abstract?" Resizable="true">
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="SubstitutionGroup" Title="Substitution Group" Resizable="true">
             <Template Context="currentElement">
                 @GetElementSubstitutionGroup(currentElement)
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="PeriodType" Title="Period Type">
+        <RadzenDataGridColumn TItem="JeffFerguson.Gepsio.Xsd.Element" Property="PeriodType" Title="Period Type" Resizable="true">
             <Template Context="currentElement">
                 @GetElementPeriodType(currentElement)
             </Template>
@@ -145,5 +161,19 @@
             default:
                 return "Unknown";
         }
+    }
+
+    private string GetDocumentation()
+    {
+        if(string.IsNullOrEmpty(CurrentSchema.Documentation) == false)
+            return CurrentSchema.Documentation;
+        return "No documentation available.";
+    }
+
+    private string GetSourceUri(JeffFerguson.Gepsio.Xsd.Element element)
+    {
+        if(string.IsNullOrEmpty(element.SourceUri) == false)
+            return element.SourceUri;
+        return CurrentSchema.LoadPath;
     }
 }
