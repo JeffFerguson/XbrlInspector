@@ -20,7 +20,7 @@
                 </NavLink>
                 @foreach(var currentXbrlFragment in XbrlDoc!.XbrlFragments)
                 {
-                    <RadzenPanelMenuItem Text="Fragment" Icon="article">
+                    <RadzenPanelMenuItem Text="Data" Icon="article">
                         @{
                             var fragmentId = FragmentMap!.Add(currentXbrlFragment);
                             if(currentXbrlFragment.Facts.Count > 0)
@@ -44,22 +44,30 @@
                                     <RadzenPanelMenuItem Text="Contexts" Icon="calendar_month" />
                                 </NavLink>                       
                             }
-                            if(currentXbrlFragment.Schemas.Count > 0)
-                            {
-                                <RadzenPanelMenuItem Text="Schemas" Icon="schema">
-                                    @foreach(var currentSchema in currentXbrlFragment.Schemas)
-                                    {
-                                        var schemaId = SchemaMap!.Add(currentSchema);
-                                        var hrefDestination = "schema/" + schemaId;
-                                        <NavLink class="nav-link" Match="NavLinkMatch.All" href=@hrefDestination>
-                                            <RadzenPanelMenuItem Text="Schema" Icon="schema" />
-                                        </NavLink>             
-                                    }
-                                </RadzenPanelMenuItem>
-                            }
                         }
                     </RadzenPanelMenuItem>
                 }
+                @if(SchemasAvailable() == true)
+                {
+                    <RadzenPanelMenuItem Text="Schemas" Icon="schema">                
+                    @foreach(var currentXbrlFragment in XbrlDoc!.XbrlFragments)
+                    {
+                        if(currentXbrlFragment.Schemas.Count > 0)
+                        {
+                            foreach(var currentSchema in currentXbrlFragment.Schemas)
+                            {
+                                var schemaId = SchemaMap!.Add(currentSchema);
+                                var schemaUri = new Uri(currentSchema.LoadPath);
+                                var schemaFileName = schemaUri.Segments[schemaUri.Segments.Length - 1];
+                                var hrefDestination = "schema/" + schemaId;
+                                <NavLink class="nav-link" Match="NavLinkMatch.All" href=@hrefDestination>
+                                    <RadzenPanelMenuItem Text=@schemaFileName Icon="schema" />
+                                </NavLink>             
+                            }
+                        }
+                    } 
+                    </RadzenPanelMenuItem>
+                }           
             }
         </RadzenPanelMenu>
     </RadzenSidebar>
@@ -89,5 +97,17 @@
     {
         ShowMenuItems = true;
         InvokeAsync(StateHasChanged);
+    }
+
+    private bool SchemasAvailable()
+    {
+        foreach(var currentFragment in XbrlDoc!.XbrlFragments)
+        {            
+            if(currentFragment.Schemas.Count > 0)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

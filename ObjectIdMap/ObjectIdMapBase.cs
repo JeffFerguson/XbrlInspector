@@ -7,7 +7,9 @@ namespace XbrlInspector.ObjectIdMap
     /// <para>
     /// The app maintains pages for each class type to be supported in the app, and the navigation is
     /// set up to supply a page parameter to specify which object is to have its state displayed in the
-    /// page.
+    /// page. For example, an app-relative URL of "schema/1" specifies that the schema page should be
+    /// displayed and that the schema object at schema map index 1 should be used as the data source
+    /// for populating the schema page.
     /// </para>
     /// </remarks>
     /// <typeparam name="T">

@@ -90,7 +90,7 @@
 </RadzenDataGrid>
 
 @code {
-    [CascadingParameter] public XbrlSchemaMap? SchemaMap { get; set; }
+    [CascadingParameter] public required XbrlSchemaMap SchemaMap { get; set; }
     [Parameter] public Guid SchemaId { get; set; }
     public required XbrlSchema CurrentSchema { get; set; }
 
@@ -99,7 +99,7 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        CurrentSchema = SchemaMap.Get(SchemaId);
+        CurrentSchema = SchemaMap!.Get(SchemaId);
         if(CurrentSchema == null)
         {
             allElements = new List<JeffFerguson.Gepsio.Xsd.Element>().AsEnumerable<JeffFerguson.Gepsio.Xsd.Element>();
@@ -112,7 +112,7 @@
 
     protected override void OnParametersSet()
     {
-        CurrentSchema = SchemaMap.Get(SchemaId);
+        CurrentSchema = SchemaMap!.Get(SchemaId);
         if(CurrentSchema == null)
         {
             allElements = new List<JeffFerguson.Gepsio.Xsd.Element>().AsEnumerable<JeffFerguson.Gepsio.Xsd.Element>();

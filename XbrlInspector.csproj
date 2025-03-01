@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Gepsio" Version="2.1.0.20" />
-    <PackageReference Include="Radzen.Blazor" Version="5.7.10" />
+    <PackageReference Include="Radzen.Blazor" Version="6.1.4" />
   </ItemGroup>
 
 </Project>

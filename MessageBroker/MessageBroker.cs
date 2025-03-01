@@ -44,13 +44,11 @@ namespace XbrlInspector.MessageBroker
         private static MessageBroker _instance;
         private readonly Dictionary<Type, List<Delegate>> _subscribers;
 
-        public static MessageBroker Instance
+        public static MessageBroker Instance => MessageBroker._instance;
+
+        static MessageBroker()
         {
-            get
-            {
-                _instance ??= new MessageBroker();
-                return _instance;
-            }
+            _instance = new MessageBroker();
         }
 
         public MessageBroker()
